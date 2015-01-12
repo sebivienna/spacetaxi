@@ -1,6 +1,7 @@
 # A GAME
 
-#      **--advice--**
+#**--advice--**
+#points
 #blue point give full hitpoints
 #yellow point give 10 - 20 points
 #2 player
@@ -285,8 +286,8 @@ class Taxi(pygame.sprite.Sprite):
         self.fuel = 10.0
         self.fuelfull = 10.0
         
-        self.hitpoints = 100.0
-        self.hitpointsfull = 100.0
+        self.hitpoints = 30.0
+        self.hitpointsfull = 30.0
         
     def bonus(self):
             self.fuel = self.fuelfull
@@ -343,45 +344,43 @@ class Taxi(pygame.sprite.Sprite):
 
 
 
-class Apple(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self, self.groups)
-        self.image = pygame.Surface((40, 40)) # created on the fly
-        self.image.fill((1, 2, 3))
-        pygame.draw.circle(self.image, (190, 0 , 20), (20, 20), 10, 0) # apple
-        self.image.set_colorkey((1, 2, 3)) # black transparent
-        self.image = self.image.convert_alpha()
-        self.rect = self.image.get_rect()
-        #Apple.images.append(self.image)
-        self.timer = 0.0
-        self.dx = 0.0
-        self.dy = 0.0
-        self.x = 0
-        self.y = 0
-        self.maxtime = 6.0
-        self.newpos()
+#class Apple(pygame.sprite.Sprite):
+   # def __init__(self):
+     #   pygame.sprite.Sprite.__init__(self, self.groups)
+     #   self.image = pygame.Surface((40, 40)) # created on the fly
+    #    self.image.fill((1, 2, 3))
+      #  pygame.draw.circle(self.image, (190, 0 , 20), (20, 20), 10, 0) # apple
+    #    self.image.set_colorkey((1, 2, 3)) # black transparent
+     #   self.image = self.image.convert_alpha()
+    #    self.rect = self.image.get_rect()
+     #   #Apple.images.append(self.image)
+    #    self.timer = 0.0
+     #   self.dx = 0.0
+    #    self.dy = 0.0
+    #    self.y = 0
+    #    self.maxtime = 6.0
+    #    self.newpos()
 
 
 
 
-    def newpos(self):
-        self.x = random.randint (0, PygView.widht)
-        self.y = random.randint (0, PygView.height)
+    #def newpos(self):
+     #   self.x = random.randint (0, PygView.widht)
+      #  self.y = random.randint (0, PygView.height)
 
 
-    def update(self, seconds):
+    #def update(self, seconds):
         # no need for seconds but the other sprites need it
         #self.rect.center = pygame.mouse.get_pos()
-
         #self.dy += 0.1
-        self.x += self.dx
-        self.y += self.dy
-        self.rect.centerx = self.x
-        self.rect.centery = self.y
-        self.timer += seconds
-        if self.timer > self.maxtime:
-            self.timer = 0.0
-            self.newpos()
+        #self.x += self.dx
+        #self.y += self.dy
+        #self.rect.centerx = self.x
+        #self.rect.centery = self.y
+        #self.timer += seconds
+        #if self.timer > self.maxtime:
+        #   self.timer = 0.0
+        #   self.newpos()
 
 
 class Cannon(pygame.sprite.Sprite):
@@ -443,7 +442,7 @@ class Cannonball(pygame.sprite.Sprite):
     def __init__(self,x,y,targetx,targety):
          pygame.sprite.Sprite. __init__(self,self.groups) #!!!!!!!!!!
          self.image=pygame.Surface((20,20))
-         pygame.draw.circle(self.image,(100,83,81),(10,10),10)
+         pygame.draw.circle(self.image,(191,191,191),(10,10),10)
          self.image.set_colorkey((0,0,0))
          self.image=self.image.convert_alpha()
          self.rect = self.image.get_rect()
@@ -475,9 +474,67 @@ class Cannonball(pygame.sprite.Sprite):
              self.kill()     
          self.rect.centerx = self.x
          self.rect.centery = self.y
+         
+         
+         
+
+class Fruit (pygame.sprite.Sprite):
+    def __init__(self, color, maxtime = 6):
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.image = pygame.Surface((40, 40)) # created on the fly
+        self.image.fill((1, 2, 3))
+        pygame.draw.circle(self.image, color, (20, 20), 10, 0) # apple
+        self.image.set_colorkey((1, 2, 3)) # black transparent
+        self.rect = self.image.get_rect()
+        #Apple.images.append(self.image)
+        self.timer = 0.0
+        self.image = self.image.convert_alpha()
+        self.dx = 0.0
+        self.dy = 0.0
+        self.x = 0
+        self.y = 0
+        self.maxtime = maxtime
+        self.newpos()
+        
+        
+        
+    def newpos(self):
+        self.x = random.randint (0, PygView.widht)
+        self.y = random.randint (0, PygView.height)
 
 
+    def update(self, seconds):
+        # no need for seconds but the other sprites need it
+        #self.rect.center = pygame.mouse.get_pos()
 
+        #self.dy += 0.1
+        self.x += self.dx
+        self.y += self.dy
+        self.rect.centerx = self.x
+        self.rect.centery = self.y
+        self.timer += seconds
+        if self.timer > self.maxtime:
+            self.timer = 0.0
+            self.newpos()
+        
+        
+class Apple(Fruit):
+    def __init__(self):
+        Fruit.__init__(self, (190, 0, 20), 6)
+        
+class Banana(Fruit):
+	def __init__ (self):
+		Fruit.__init__ (self, (255, 255, 0), 2)
+		
+		
+class ChewGum(Fruit):
+	def __init__  (self):
+		Fruit. __init__ (self, (0, 33, 255),  4)
+
+
+     
+
+    
 
 class Ball(object):
     """this is not a native pygame sprite but instead a pygame surface"""

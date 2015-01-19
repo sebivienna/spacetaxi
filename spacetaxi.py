@@ -1,10 +1,15 @@
 # A GAME
 
 #**--advice--**
-#points
-#blue point give full hitpoints
-#yellow point give 10 - 20 points
-#2 player
+#have
+#your
+#own
+#ideas
+#for
+#more
+#fun
+#:)
+#**--text--**
 
 import pygame
 import random
@@ -13,9 +18,9 @@ import math
 
 class PygView(object):
     width = 1024
-    height = 800
+    height = 750
 
-    def __init__(self, width=1024, height=800, fps=60):
+    def __init__(self, width=1024, height=750, fps=60):
         """Initialize pygame, window, background, font,...
            default arguments
         """
@@ -42,12 +47,17 @@ class PygView(object):
         self.applegroup = pygame.sprite.Group()
         self.cannongroup=pygame.sprite.Group()
         self.cannonballgroup=pygame.sprite.Group()
+        self.bananagroup = pygame.sprite.Group()
+        self.chewgumgroup = pygame.sprite.Group()
+        
         #assign default groups to each sprite class
         Taxi.groups = self.taxigroup, self.allgroup
         Platform.groups = self.platformgroup, self.allgroup
         Apple.groups = self.applegroup, self.allgroup
         Cannon.groups=self.cannongroup, self.allgroup
         Cannonball.groups=self.cannonballgroup, self.allgroup
+        Banana.groups = self.bananagroup, self.allgroup
+        ChewGum.groups = self.chewgumgroup, self.allgroup
 
 
         self.taxi1 = Taxi(width/2, height/2)
@@ -62,6 +72,8 @@ class PygView(object):
         #self.apple3 = Apple()
         self.cannon1 = Cannon(width/2, 0, 0, self.taxi1) #down
         self.cannon2 = Cannon(width/2, height, 0, self.taxi1) #up
+        self.banana = Banana()
+        self.chewgum = ChewGum()
         
 
     def paint(self):
@@ -84,23 +96,29 @@ class PygView(object):
         """
         self.paint()
         self.screen.blit(self.background, (0, 0))
+        self.showfps = False
 
         running = True
         while running:
+            #self.screen.blit(self.background, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
+                    if event.key == pygame.K_f:
+                        self.showfps = not self.showfps
 
             milliseconds = self.clock.tick(self.fps)
             seconds = milliseconds/1000.0
             self.playtime += seconds
-            self.draw_text("FPS: {:6.3} P1:Fuel: {:6.3} P1:HP: {} ".format( self.clock.get_fps(), 
+            self.draw_text("Score:{:6.3} Fuel:{:6.3} HP:{} ".format( self.taxi1.score, 
                            self.taxi1.fuel, self.taxi1.hitpoints))
-            #self.draw_text("P2:Fuel: {:6.3} P2:HP: {:6.3}".format(self.taxi2.fuel, self.taxi2.hitpoints))
-                   
+            if self.showfps:
+                self.draw_text("FPS:{:6.3}".format(self.clock.get_fps()), PygView.width - 200.0, PygView.height - 90.0)
+                
+                  
             for taxi in self.taxigroup:
                 taxi.status = 0
                 self.crashgroup = pygame.sprite.spritecollide(taxi, self.platformgroup, False )
@@ -141,15 +159,16 @@ class PygView(object):
             for taxi in self.taxigroup:
                 self.crashgroup = pygame.sprite.spritecollide(taxi, self.applegroup, True )
                 for crashtaxi in self.crashgroup:
-                    taxi.bonus()
+                    taxi.bonus_fuel()
                     Apple()
                     
-
-                                    
+            
+            #pygame.display.flip()                      
             #for platform in self.platformgroup:
             #    self.crashgroup = pygame.sprite.spritecollide(platform, self.applegroup, True)
             #    for crashplatform in self.crashgroup:
             #        Apple()
+            
             for apple in self.applegroup:
                 self.crashgroup = pygame.sprite.spritecollide(apple, self.platformgroup, False)
                 for crasplatform in self.crashgroup:
@@ -166,9 +185,39 @@ class PygView(object):
             for taxi in self.taxigroup:
                 if not taxi.alive:
                     running = False
+          
+            
+            for taxi in self.taxigroup:
+                self.crashgroup = pygame.sprite.spritecollide(taxi, self.bananagroup, True)
+                for crashbanana in self.crashgroup:
+                    taxi.bonus_score()
+                    Banana()
+                    
+            for banana in self.bananagroup:
+               self.crashgroup = pygame.sprite.spritecollide(banana, self.platformgroup, False)
+               for crasplatform in self.crashgroup:
+                   banana.kill()
+                   Banana()
+                   break
+                    
+                 
+            for taxi in self.taxigroup:
+               self.crashgroup = pygame.sprite.spritecollide(taxi, self.chewgumgroup, True)
+               for crashchewgum in self.crashgroup:
+                   taxi.bonus_hitpoints()
+                   ChewGum()
+                    
+            for chewgum in self.chewgumgroup:
+               self.crashgroup = pygame.sprite.spritecollide(chewgum, self.platformgroup, False)
+               for crasplatform in self.crashgroup:
+                   chewgum.kill()
+                   ChewGum()
+                   break
+                    
+            
             pygame.display.flip()
             #self.screen.blit(self.background, (0, 0))
-
+            
             self.allgroup.clear(self.screen, self.background)
             self.allgroup.update(seconds)
             self.allgroup.draw(self.screen)
@@ -181,7 +230,7 @@ class PygView(object):
     def draw_text(self, text,x = 20 ,y = 30):
         """Center text in window
         """
-        pygame.draw.rect(self.screen, (0, 0, 0), (0, y, PygView.width, 30))   
+        #pygame.draw.rect(self.screen, (0, 0, 0), (0, y, PygView.width, 30))   
         fw, fh = self.font.size(text)
         surface = self.font.render(text, True, (255, 255, 255))
         self.screen.blit(surface, (x ,y))
@@ -284,13 +333,21 @@ class Taxi(pygame.sprite.Sprite):
         self.landed = False
 
         self.fuel = 10.0
-        self.fuelfull = 10.0
+        self.fuelfull = 100000.0
         
         self.hitpoints = 30.0
         self.hitpointsfull = 30.0
         
-    def bonus(self):
+        self.score = 0.0
+       
+    def bonus_fuel(self):
             self.fuel = self.fuelfull
+    
+    def bonus_score(self):
+        self.score +=  random.randint(10, 20)
+    
+    def bonus_hitpoints(self):
+        self.hitpoints = self.hitpointsfull
 
 
 
@@ -523,13 +580,13 @@ class Apple(Fruit):
         Fruit.__init__(self, (190, 0, 20), 6)
         
 class Banana(Fruit):
-	def __init__ (self):
-		Fruit.__init__ (self, (255, 255, 0), 2)
-		
-		
+    def __init__ (self):
+        Fruit.__init__ (self, (255, 255, 0), 2)
+        
+        
 class ChewGum(Fruit):
-	def __init__  (self):
-		Fruit. __init__ (self, (0, 33, 255),  4)
+    def __init__  (self):
+        Fruit. __init__ (self, (0, 33, 255),  4)
 
 
      

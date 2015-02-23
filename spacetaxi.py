@@ -9,7 +9,10 @@
 #more
 #fun
 #:)
-#**--text--**
+#**--titlescreen--**
+#**--prodeucer--**
+#**--explain, rules--**
+
 
 import pygame
 import random
@@ -49,9 +52,11 @@ class PygView(object):
         self.cannonballgroup=pygame.sprite.Group()
         self.bananagroup = pygame.sprite.Group()
         self.chewgumgroup = pygame.sprite.Group()
+        self.states = ["menu", "play", "gameover", "credits", "rules"]
+        self.state = "menu"
         
         #assign default groups to each sprite class
-        Taxi.groups = self.taxigroup, self.allgroup
+        Taxi.groups = self.taxigroup,
         Platform.groups = self.platformgroup, self.allgroup
         Apple.groups = self.applegroup, self.allgroup
         Cannon.groups=self.cannongroup, self.allgroup
@@ -101,126 +106,174 @@ class PygView(object):
         running = True
         while running:
             #self.screen.blit(self.background, (0, 0))
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        running = False
-                    if event.key == pygame.K_f:
-                        self.showfps = not self.showfps
+            
 
             milliseconds = self.clock.tick(self.fps)
             seconds = milliseconds/1000.0
-            self.playtime += seconds
-            self.draw_text("Score:{:6.3} Fuel:{:6.3} HP:{} ".format( self.taxi1.score, 
-                           self.taxi1.fuel, self.taxi1.hitpoints))
-            if self.showfps:
-                self.draw_text("FPS:{:6.3}".format(self.clock.get_fps()), PygView.width - 200.0, PygView.height - 90.0)
+            self.playtime += seconds 
+            if self.state == "menu":
+                text = "press p to start"
+                self.draw_text(text, 50 ,100)
+                text = "esc to quit"
+                self.draw_text(text, 50, 140)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                    elif event.type == pygame.KEYDOWN:
+                        
+                        if event.key == pygame.K_f:
+                            self.showfps = not self.showfps
+                            
+                        if event.key == pygame.K_p:
+                            self.state = "play"
+                            self.taxi1.x = PygView.widht/2
+                            self.taxi1.y = PygView.height/2
+                            self.taxi1.reset()
+                        if event.key == pygame.K_ESCAPE:
+                                running = False
+                        
                 
-                  
-            for taxi in self.taxigroup:
-                taxi.status = 0
-                self.crashgroup = pygame.sprite.spritecollide(taxi, self.platformgroup, False )
-                #taxi.landed = False
-                for crashplatform in self.crashgroup:
-                    if taxi.rect.centerx < crashplatform.rect.centerx:
-                        if taxi.rect.left > crashplatform.rect.left:
-                            taxi.status = 2 #green
-                            taxi.landed = True
-                            taxi.dy = 0.0
-                            taxi.dx = 0.0
-                        else:
-                            taxi.status = 1
-                    if taxi.rect.centerx > crashplatform.rect.centerx:
-                        if taxi.rect.right < crashplatform.rect.right:
-                            taxi.status = 2 #green
-                            taxi.landed = True
-                            taxi.dy = 0.0
-                            taxi.dx = 0.0
-                        else:
-                            taxi.status = 1
-                    if taxi.rect.centery > crashplatform.rect.centery:
-                        if taxi.rect.top < crashplatform.rect.bottom:
+            if self.state == "play" or self.state == "gameover":
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                    elif event.type == pygame.KEYDOWN:
+                        
+                        if event.key == pygame.K_f:
+                            self.showfps = not self.showfps
+                    
+                        if event.key == pygame.K_ESCAPE:
+                                self.state = "menu"
+                            
+                self.draw_text("Score:{:6.3} Fuel:{:6.3} HP:{} state:{} ".format( self.taxi1.score, 
+                               self.taxi1.fuel, self.taxi1.hitpoints, self.state))
+                if self.showfps:
+                    self.draw_text("FPS:{:6.3}".format(self.clock.get_fps()), PygView.width - 200.0, PygView.height - 90.0)
+                    
+                if self.state ==  "play":
+                    
+                        
+                    for taxi in self.taxigroup:
+                        taxi.status = 0
+                        self.crashgroup = pygame.sprite.spritecollide(taxi, self.platformgroup, False )
+                        #taxi.landed = False
+                        for crashplatform in self.crashgroup:
+                            if taxi.rect.centerx < crashplatform.rect.centerx:
+                                if taxi.rect.left > crashplatform.rect.left:
+                                    taxi.status = 2 #green
+                                    taxi.landed = True
+                                    taxi.dy = 0.0
+                                    taxi.dx = 0.0
+                                else:
+                                    taxi.status = 1
+                            if taxi.rect.centerx > crashplatform.rect.centerx:
+                                if taxi.rect.right < crashplatform.rect.right:
+                                    taxi.status = 2 #green
+                                    taxi.landed = True
+                                    taxi.dy = 0.0
+                                    taxi.dx = 0.0
+                                else:
+                                    taxi.status = 1
+                            if taxi.rect.centery > crashplatform.rect.centery:
+                                if taxi.rect.top < crashplatform.rect.bottom:
+                                    taxi.alive = False
+                                    taxi.landed = False
+                                    taxi.dy = 0.0
+                                    taxi.dy = 0.0
+
+
+
+                        print(taxi.status)
+
+                   
+
+                
+
+                    for taxi in self.taxigroup:
+                        self.crashgroup = pygame.sprite.spritecollide(taxi, self.applegroup, True )
+                        for crashtaxi in self.crashgroup:
+                            taxi.bonus_fuel()
+                            Apple()
+                    
+                    
+                    for taxi in self.taxigroup:
+                        self.crashgroup = pygame.sprite.spritecollide(taxi, self.cannonballgroup, True)
+                        for crashcannonball in self.crashgroup:
+                            taxi.hitpoints -= 1    
+                    
+                    for taxi in self.taxigroup:
+                        if taxi.hitpoints < 0.1 or taxi.fuel < 0.1:
                             taxi.alive = False
-                            taxi.landed = False
-                            taxi.dy = 0.0
-                            taxi.dy = 0.0
+                            
+                        if not taxi.alive:
+                            #running = False
+                            self.state = "gameover"
+                  
+                    
+                    
+                    for taxi in self.taxigroup:
+                        self.crashgroup = pygame.sprite.spritecollide(taxi, self.bananagroup, True)
+                        for crashbanana in self.crashgroup:
+                            taxi.bonus_score()
+                            Banana()
+                    
+                    for taxi in self.taxigroup:
+                       self.crashgroup = pygame.sprite.spritecollide(taxi, self.chewgumgroup, True)
+                       for crashchewgum in self.crashgroup:
+                           taxi.bonus_hitpoints()
+                           ChewGum()
+                    
+                
+                
+                
+                
+                #pygame.display.flip()                      
+                #for platform in self.platformgroup:
+                #    self.crashgroup = pygame.sprite.spritecollide(platform, self.applegroup, True)
+                #    for crashplatform in self.crashgroup:
+                #        Apple()
+                
+                
+                for apple in self.applegroup:
+                    self.crashgroup = pygame.sprite.spritecollide(apple, self.platformgroup, False)
+                    for crasplatform in self.crashgroup:
+                        apple.kill()
+                        Apple()
+                        break
 
-
-
-                print(taxi.status)
-
-           
-
-            if self.taxi1.fuel < 0.002:
-                running = False
-
-            for taxi in self.taxigroup:
-                self.crashgroup = pygame.sprite.spritecollide(taxi, self.applegroup, True )
-                for crashtaxi in self.crashgroup:
-                    taxi.bonus_fuel()
-                    Apple()
+   
+                        
+                        
+                for banana in self.bananagroup:
+                   self.crashgroup = pygame.sprite.spritecollide(banana, self.platformgroup, False)
+                   for crasplatform in self.crashgroup:
+                       banana.kill()
+                       Banana()
+                       break
+                        
+                        
+                                         
+                for chewgum in self.chewgumgroup:
+                   self.crashgroup = pygame.sprite.spritecollide(chewgum, self.platformgroup, False)
+                   for crasplatform in self.crashgroup:
+                       chewgum.kill()
+                       ChewGum()
+                       break
                     
             
-            #pygame.display.flip()                      
-            #for platform in self.platformgroup:
-            #    self.crashgroup = pygame.sprite.spritecollide(platform, self.applegroup, True)
-            #    for crashplatform in self.crashgroup:
-            #        Apple()
-            
-            for apple in self.applegroup:
-                self.crashgroup = pygame.sprite.spritecollide(apple, self.platformgroup, False)
-                for crasplatform in self.crashgroup:
-                    apple.kill()
-                    Apple()
-                    break
-
-                    
-            for taxi in self.taxigroup:
-                self.crashgroup = pygame.sprite.spritecollide(taxi, self.cannonballgroup, True)
-                for crashcannonball in self.crashgroup:
-                    taxi.hitpoints -= 1
-                                       
-            for taxi in self.taxigroup:
-                if not taxi.alive:
-                    running = False
-          
-            
-            for taxi in self.taxigroup:
-                self.crashgroup = pygame.sprite.spritecollide(taxi, self.bananagroup, True)
-                for crashbanana in self.crashgroup:
-                    taxi.bonus_score()
-                    Banana()
-                    
-            for banana in self.bananagroup:
-               self.crashgroup = pygame.sprite.spritecollide(banana, self.platformgroup, False)
-               for crasplatform in self.crashgroup:
-                   banana.kill()
-                   Banana()
-                   break
-                    
-                 
-            for taxi in self.taxigroup:
-               self.crashgroup = pygame.sprite.spritecollide(taxi, self.chewgumgroup, True)
-               for crashchewgum in self.crashgroup:
-                   taxi.bonus_hitpoints()
-                   ChewGum()
-                    
-            for chewgum in self.chewgumgroup:
-               self.crashgroup = pygame.sprite.spritecollide(chewgum, self.platformgroup, False)
-               for crasplatform in self.crashgroup:
-                   chewgum.kill()
-                   ChewGum()
-                   break
-                    
             
             pygame.display.flip()
-            #self.screen.blit(self.background, (0, 0))
+            self.screen.blit(self.background, (0, 0))
             
-            self.allgroup.clear(self.screen, self.background)
-            self.allgroup.update(seconds)
-            self.allgroup.draw(self.screen)
+            #self.allgroup.clear(self.screen, self.background)
+            if self.state == "play" or self.state == "gameover":
+                
+                self.allgroup.update(seconds)
+                self.allgroup.draw(self.screen)
+                
+            if self.state == "play":
+                self.taxigroup.update(seconds)
+                self.taxigroup.draw(self.screen)
 
 
 
@@ -272,9 +325,9 @@ class Taxi(pygame.sprite.Sprite):
     images = [] #yellow, red, green
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self, self.groups)
-        self.alive = True
+        
 
-        #YELLOW 
+        #YELLOW 0
 
         self.image_yellow = pygame.Surface((150,50)) # created on the fly
         self.rect = self.image_yellow.get_rect()
@@ -323,22 +376,30 @@ class Taxi(pygame.sprite.Sprite):
         Taxi.images.append(self.image_green)
 
         self.image = Taxi.images[0]
-        self.status = 0 #0 = yellow, 1 = red, 2 = green
-        self.radius = 50 # for collide check
         self.x = x
         self.y = y
+        self.radius = 50 # for collide check
+        
+
+    def reset(self):
+        self.image = Taxi.images[0]
+        self.alive = True
+        self.status = 0 #0 = yellow, 1 = red, 2 = green
+        
         self.dx = 0.0
         self.dy = 0.0
         self.speed = 0.1
         self.landed = False
 
         self.fuel = 10.0
-        self.fuelfull = 100000.0
+        self.fuelfull = 1000.0
         
         self.hitpoints = 30.0
         self.hitpointsfull = 30.0
         
         self.score = 0.0
+        
+    
        
     def bonus_fuel(self):
             self.fuel = self.fuelfull
@@ -401,45 +462,6 @@ class Taxi(pygame.sprite.Sprite):
 
 
 
-#class Apple(pygame.sprite.Sprite):
-   # def __init__(self):
-     #   pygame.sprite.Sprite.__init__(self, self.groups)
-     #   self.image = pygame.Surface((40, 40)) # created on the fly
-    #    self.image.fill((1, 2, 3))
-      #  pygame.draw.circle(self.image, (190, 0 , 20), (20, 20), 10, 0) # apple
-    #    self.image.set_colorkey((1, 2, 3)) # black transparent
-     #   self.image = self.image.convert_alpha()
-    #    self.rect = self.image.get_rect()
-     #   #Apple.images.append(self.image)
-    #    self.timer = 0.0
-     #   self.dx = 0.0
-    #    self.dy = 0.0
-    #    self.y = 0
-    #    self.maxtime = 6.0
-    #    self.newpos()
-
-
-
-
-    #def newpos(self):
-     #   self.x = random.randint (0, PygView.widht)
-      #  self.y = random.randint (0, PygView.height)
-
-
-    #def update(self, seconds):
-        # no need for seconds but the other sprites need it
-        #self.rect.center = pygame.mouse.get_pos()
-        #self.dy += 0.1
-        #self.x += self.dx
-        #self.y += self.dy
-        #self.rect.centerx = self.x
-        #self.rect.centery = self.y
-        #self.timer += seconds
-        #if self.timer > self.maxtime:
-        #   self.timer = 0.0
-        #   self.newpos()
-
-
 class Cannon(pygame.sprite.Sprite):
     def __init__(self,x,y, angle, target):
         pygame.sprite.Sprite. __init__(self, self.groups) # !!!!!!!!!
@@ -498,7 +520,7 @@ class Cannon(pygame.sprite.Sprite):
 class Cannonball(pygame.sprite.Sprite):
     def __init__(self,x,y,targetx,targety):
          pygame.sprite.Sprite. __init__(self,self.groups) #!!!!!!!!!!
-         self.image=pygame.Surface((20,20))
+         self.image = pygame.Surface((20,20))
          pygame.draw.circle(self.image,(191,191,191),(10,10),10)
          self.image.set_colorkey((0,0,0))
          self.image=self.image.convert_alpha()
@@ -588,10 +610,10 @@ class ChewGum(Fruit):
     def __init__  (self):
         Fruit. __init__ (self, (0, 33, 255),  4)
 
-
-     
-
+                                 
+        
     
+
 
 class Ball(object):
     """this is not a native pygame sprite but instead a pygame surface"""
@@ -620,4 +642,3 @@ if __name__ == '__main__':
 
     # call with width of window and fps
     PygView().run()
-

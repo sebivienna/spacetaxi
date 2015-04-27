@@ -38,7 +38,7 @@ class PygView(object):
         try: 
             self.background = pygame.image.load("stars002.jpg")
         except:
-            print("Sorry, you can´t play this game in the orignial background art. See README.md")
+            print("Sorry, you can not play this game in the orignial background art. See README.md")
             self.make_stars()
         
                     
@@ -186,7 +186,7 @@ class PygView(object):
                         if event.key == pygame.K_ESCAPE:
                             self.state = "menu"
                 textlist2 = ["Producer: Sebastian K. ",
-                             "Sound: There isn´t a sound",
+                             "Sound: There is not a sound",
                              "Design: Sebastian K.", 
                              "Programmer: Sebastian K. and Co.",
                              "In Test: Alex W. and Horst",
@@ -216,8 +216,8 @@ class PygView(object):
                         if event.key == pygame.K_ESCAPE:
                                 self.state = "menu"
                             
-                self.draw_text("Score:{:6.3} Fuel:{:6.3} HP:{} State:{}".format( self.taxi1.score, 
-                               self.taxi1.fuel, self.taxi1.hitpoints, self.state))
+                self.draw_text("Score:{:6.3} Fuel:{:6.3} HP:{} ".format( self.taxi1.score, 
+                               self.taxi1.fuel, self.taxi1.hitpoints,))
                 if self.showfps: 
                     self.draw_text("FPS:{:6.3}".format(self.clock.get_fps()), PygView.width - 200.0, PygView.height - 90.0)
                 
@@ -427,7 +427,7 @@ class Taxi(pygame.sprite.Sprite):
         #self.image_yellow.set_colorkey((1,2,3)) # black transparent
         #paint taxi
         pygame.draw.rect(self.image_yellow, (130, 0, 130), (65, 0, 50, 35))  # kabine
-        pygame.draw.rect(self.image_yellow, (255, 255, 0), (20, 20, 250, 20)) # taxi hülle yellow
+        pygame.draw.rect(self.image_yellow, (255, 255, 0), (20, 20, 250, 20)) # taxi huelle yellow
         pygame.draw.circle(self.image_yellow, (255, 255, 254), (50, 43), 8, 0) # wheel left
         pygame.draw.circle(self.image_yellow, (255, 255, 254), (130, 43), 8, 0) # wheel right
         pygame.draw.circle(self.image_yellow, (0, 0, 0), (50, 43), 2, 0) # wheel left middle
@@ -443,7 +443,7 @@ class Taxi(pygame.sprite.Sprite):
         self.image_red.fill((255, 255, 255))
         self.image_red.set_colorkey((1,2,3)) # black transparent
         pygame.draw.rect(self.image_red, (130, 0, 130), (65, 0, 50, 35)) #kabine
-        pygame.draw.rect(self.image_red, (255, 0, 0), (20, 20, 250, 20)) #taxi hülle red
+        pygame.draw.rect(self.image_red, (255, 0, 0), (20, 20, 250, 20)) #taxi huelle red
         pygame.draw.circle(self.image_red, (255, 255, 254), (50, 43), 8, 0) # wheel left
         pygame.draw.circle(self.image_red, (255, 255, 254), (130, 43), 8, 0) # wheel right
         pygame.draw.circle(self.image_red, (0, 0, 0), (50, 43), 2, 0) # wheel left middle
@@ -458,7 +458,7 @@ class Taxi(pygame.sprite.Sprite):
         self.image_green.fill((255, 255, 255))
         self.image_green.set_colorkey((1,2,3)) # black transparent
         pygame.draw.rect(self.image_green, (130, 0, 130), (65, 0, 50, 35)) #kabine
-        pygame.draw.rect(self.image_green, (0, 255, 0), (20, 20, 250, 20)) #taxi hülle green
+        pygame.draw.rect(self.image_green, (0, 255, 0), (20, 20, 250, 20)) #taxi huelle green
         pygame.draw.circle(self.image_green, (255, 255, 254), (50, 43), 8, 0) # wheel left
         pygame.draw.circle(self.image_green, (255, 255, 254), (130, 43), 8, 0) # wheel right
         pygame.draw.circle(self.image_green, (0, 0, 0), (50, 43), 2, 0) # wheel left middle
